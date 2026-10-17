@@ -3,113 +3,541 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delhi Travel & Leave Command Center (2026 - 2027)</title>
+    <title>Delhi Travel & Budget Command Center (2026-2027) | Ex-DEL</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        .active-tab { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: 600; }
-        .badge-gazetted { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-        .badge-restricted { background-color: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-blue-100 selection:text-blue-700">
 
     <!-- Top Navigation Header -->
-    <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <span class="text-3xl">✈️</span>
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2 rounded-xl text-white shadow-md">
+                    <i data-lucide="plane-takeoff" class="w-6 h-6"></i>
+                </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight">Delhi Departure Command Center</h1>
-                    <p class="text-xs text-slate-400">Multi-Trip Budgeting & Office Leave Engine (2026 - 2027)</p>
+                    <h1 class="text-lg font-bold text-slate-900 leading-tight">DEL Travel & Leave Hub</h1>
+                    <p class="text-xs text-slate-500 font-medium">Ex-New Delhi (DEL) • 2026–2027 Trip & Leave Command Center</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="exportJSON()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700 transition">📥 Export JSON</button>
-                <label class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700 cursor-pointer transition">
-                    📤 Import JSON
-                    <input type="file" id="import-file" onchange="importJSON(event)" class="hidden" accept=".json">
-                </label>
-                <button onclick="createNewTripPrompt()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-sm">+ New Trip Plan</button>
+
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <!-- Backup & Restore Buttons -->
+                <button onclick="exportData()" title="Export JSON Backup" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition text-xs font-medium flex items-center gap-1 border border-slate-200">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Export</span>
+                </button>
+                <button onclick="triggerImport()" title="Import JSON Backup" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition text-xs font-medium flex items-center gap-1 border border-slate-200">
+                    <i data-lucide="upload" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Import</span>
+                </button>
+                <input type="file" id="importFileInput" class="hidden" accept=".json" onchange="importData(event)">
+
+                <div class="h-6 w-px bg-slate-200"></div>
+
+                <button onclick="openTripModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm hover:shadow transition flex items-center gap-1.5">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">New Trip Plan</span>
+                </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main Content Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- Sidebar: Trips, Savings & Holiday Reference -->
-        <div class="space-y-6">
-
-            <!-- Trip Plans List -->
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-base font-bold text-slate-900">My Travel Plans</h2>
-                    <span id="trip-count" class="text-xs font-medium bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">0 Plans</span>
+        <!-- Sidebar Column (3/12 width) -->
+        <aside class="lg:col-span-4 xl:col-span-3 space-y-6">
+            
+            <!-- Trip Selection Panel -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                        <i data-lucide="compass" class="w-4 h-4 text-blue-600"></i>
+                        <span>My Travel Plans</span>
+                    </h2>
+                    <span id="trip-count-badge" class="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded-full">0</span>
                 </div>
-                <div id="trips-container" class="space-y-3">
-                    <!-- Dynamic Trip Cards inserted here -->
+
+                <!-- Filter Tabs -->
+                <div class="flex rounded-lg bg-slate-100 p-1 text-xs font-medium text-slate-600">
+                    <button onclick="filterTrips('all')" id="filter-all" class="flex-1 py-1 rounded-md text-center transition bg-white shadow-xs font-semibold text-slate-800">All</button>
+                    <button onclick="filterTrips('Solo')" id="filter-Solo" class="flex-1 py-1 rounded-md text-center transition hover:text-slate-900">Solo</button>
+                    <button onclick="filterTrips('Couple')" id="filter-Couple" class="flex-1 py-1 rounded-md text-center transition hover:text-slate-900">Couple</button>
+                </div>
+
+                <!-- Trips List -->
+                <div id="trips-list" class="space-y-2.5 max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
+                    <!-- Dynamic Trip Cards Rendered Here -->
                 </div>
             </div>
 
-            <!-- Savings Goal Calculator -->
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                <h2 class="text-base font-bold text-slate-900 mb-1">💰 Monthly Savings Goal Tracker</h2>
-                <p class="text-xs text-slate-500 mb-4">Calculate how much to set aside each month for your trips.</p>
-                
-                <div class="space-y-3 text-xs">
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Target Trip Budget (₹)</label>
-                        <input type="number" id="savings-target" value="50000" oninput="updateSavingsCalc()" class="w-full border rounded p-2 text-slate-800 focus:ring-1 focus:ring-blue-500">
+            <!-- Quick Holiday Snapshot Widget -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                        <i data-lucide="calendar-heart" class="w-4 h-4 text-rose-500"></i>
+                        <span>2026–2027 Key Holidays</span>
+                    </h2>
+                    <span id="holiday-year-toggle" class="text-[10px] text-blue-600 font-semibold cursor-pointer" onclick="toggleHolidayYearView()">Switch Year</span>
+                </div>
+                <div id="holiday-snapshot-list" class="space-y-2 text-xs divide-y divide-slate-100 max-h-[240px] overflow-y-auto custom-scrollbar pr-1">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Workspace Main Column (9/12 width) -->
+        <main class="lg:col-span-8 xl:col-span-9 space-y-6">
+
+            <!-- Workspace Navigation Tabs (4 Main Views) -->
+            <div class="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-xs grid grid-cols-2 md:grid-cols-4 gap-1">
+                <button onclick="switchTab('details')" id="tab-details" class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-blue-600 text-white shadow-xs">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    <span>Trip Dashboard</span>
+                </button>
+                <button onclick="switchTab('calendar')" id="tab-calendar" class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                    <i data-lucide="calendar-days" class="w-4 h-4"></i>
+                    <span>2026–27 Calendar</span>
+                </button>
+                <button onclick="switchTab('savings')" id="tab-savings" class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                    <i data-lucide="piggy-bank" class="w-4 h-4"></i>
+                    <span>Savings Tracker</span>
+                </button>
+                <button onclick="switchTab('leave-optimizer')" id="tab-leave-optimizer" class="py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                    <i data-lucide="zap" class="w-4 h-4"></i>
+                    <span>Leave Optimizer</span>
+                </button>
+            </div>
+
+            <!-- Tab 1: Active Trip Dashboard & Expense Line Items -->
+            <div id="view-details" class="space-y-6">
+                <!-- Trip Summary Header Box -->
+                <div id="active-trip-header" class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs relative overflow-hidden">
+                    <!-- Dynamic content injected here -->
+                </div>
+
+                <!-- Option Comparison & Expense Line Items Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Expense Categories & Item Management (Left 2 Cols) -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-2">
+                                    <i data-lucide="receipt" class="w-4 h-4 text-blue-600"></i>
+                                    <span>Active Trip Expense Line Items & Quotes</span>
+                                </h3>
+                                <button onclick="openExpenseModal()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-medium transition flex items-center gap-1">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                    <span>Add Quote Option</span>
+                                </button>
+                            </div>
+
+                            <!-- Expense Line Items Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead>
+                                        <tr class="border-b border-slate-200 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                                            <th class="py-2.5 px-3">Item / Group</th>
+                                            <th class="py-2.5 px-3">Category</th>
+                                            <th class="py-2.5 px-3">Source</th>
+                                            <th class="py-2.5 px-3 text-right">Cost (₹)</th>
+                                            <th class="py-2.5 px-3 text-center">Active</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="expense-items-table-body" class="divide-y divide-slate-100">
+                                        <!-- Dynamic expense items -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Multi-Option Comparison Matrix Card -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+                            <h3 class="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-2">
+                                <i data-lucide="git-compare" class="w-4 h-4 text-indigo-600"></i>
+                                <span>Multi-Source Platform Quotes Compare</span>
+                            </h3>
+                            <p class="text-[11px] text-slate-400">Click any quote below to toggle active selection for budget totals.</p>
+                            <div id="comparison-matrix-container" class="space-y-4 pt-1">
+                                <!-- Injected dynamically -->
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Current Saved Pool (₹)</label>
-                        <input type="number" id="savings-current" value="15000" oninput="updateSavingsCalc()" class="w-full border rounded p-2 text-slate-800 focus:ring-1 focus:ring-blue-500">
+
+                    <!-- Visual Breakdown Chart (Right 1 Col) -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm mb-1 flex items-center gap-2">
+                                <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-600"></i>
+                                <span>Expense Distribution</span>
+                            </h3>
+                            <p class="text-[11px] text-slate-400">Breakdown of chosen options</p>
+                        </div>
+                        <div class="relative flex items-center justify-center my-2 h-48">
+                            <canvas id="expenseChart"></canvas>
+                        </div>
+                        <div id="chart-legend" class="grid grid-cols-2 gap-1.5 text-[11px] pt-2 border-t border-slate-100">
+                            <!-- Dynamic legend -->
+                        </div>
                     </div>
+
+                </div>
+            </div>
+
+            <!-- Tab 2: Interactive 2026-2027 Calendar View -->
+            <div id="view-calendar" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
+                    
+                    <!-- Calendar Header Controls -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                                <i data-lucide="calendar" class="w-5 h-5 text-blue-600"></i>
+                                <span>2026–2027 Planned Trips & Indian Holiday Calendar</span>
+                            </h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Filter by year or month to view trip schedules, Gazetted holidays, and office leave impacts.</p>
+                        </div>
+
+                        <!-- Month & Year Selector -->
+                        <div class="flex items-center space-x-2">
+                            <button onclick="changeCalendarMonth(-1)" class="p-2 border border-slate-200 hover:bg-slate-100 rounded-xl transition text-slate-600">
+                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            </button>
+                            <span id="calendar-current-month-label" class="text-xs font-bold text-slate-800 min-w-[130px] text-center bg-slate-50 border border-slate-200 py-2 rounded-xl">November 2026</span>
+                            <button onclick="changeCalendarMonth(1)" class="p-2 border border-slate-200 hover:bg-slate-100 rounded-xl transition text-slate-600">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Legend & Key Indicators -->
+                    <div class="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 inline-block shadow-xs"></span> Planned Trip Day</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bg-amber-400 inline-block"></span> Gazetted Holiday</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bg-slate-300 inline-block"></span> Restricted / Ref</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bg-rose-100 border border-rose-300 inline-block"></span> Paid Office Leave Needed</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bg-slate-200/60 inline-block"></span> Weekend</span>
+                    </div>
+
+                    <!-- Grid Layout for 2 Selected Months View -->
+                    <div id="calendar-months-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Dynamic Month 1 & Month 2 Populated Here -->
+                    </div>
+
+                    <!-- Selected Day Detail Card -->
+                    <div id="calendar-day-detail-card" class="p-4 bg-slate-50 rounded-xl border border-slate-200 hidden">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 id="calendar-detail-date" class="font-bold text-slate-900 text-xs uppercase tracking-wide">Selected Date Details</h4>
+                            <span id="calendar-detail-type" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Information</span>
+                        </div>
+                        <p id="calendar-detail-text" class="text-xs text-slate-600">Click on any date on the calendar above to view details.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Tab 3: Monthly Savings Goal Tracker -->
+            <div id="view-savings" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
+                    <div class="border-b border-slate-100 pb-4">
+                        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="piggy-bank" class="w-5 h-5 text-emerald-600"></i>
+                            <span>Monthly Savings Simulator & Trip Goal Tracker</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Calculate your monthly savings requirements to fully fund upcoming trips without debt.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Inputs Card -->
+                        <div class="p-5 border border-slate-200/80 rounded-2xl bg-slate-50/50 space-y-4">
+                            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Configure Savings Parameters</h3>
+                            
+                            <div>
+                                <label class="block font-semibold text-slate-700 text-xs mb-1">Target Trip Plan</label>
+                                <select id="savings-target-trip" onchange="updateSavingsTracker()" class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-xs font-medium bg-white">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-semibold text-slate-700 text-xs mb-1">Current Saved Pool (₹)</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2.5 text-slate-400 font-medium text-xs">₹</span>
+                                        <input type="number" id="savings-current-input" value="18000" oninput="updateSavingsTracker()" class="w-full pl-7 pr-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-xs text-slate-800 bg-white">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-700 text-xs mb-1">Target Completion</label>
+                                    <select id="savings-target-month" onchange="updateSavingsTracker()" class="w-full p-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-xs font-medium bg-white">
+                                        <option value="11-2026">Nov 2026 (Thanksgiving)</option>
+                                        <option value="12-2026" selected>Dec 2026 (Year-End)</option>
+                                        <option value="03-2027">Mar 2027 (Holi/Spring)</option>
+                                        <option value="10-2027">Oct 2027 (Diwali Break)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress & Metric Summary Box -->
+                        <div class="p-5 border border-emerald-200/80 rounded-2xl bg-emerald-50/30 space-y-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-bold text-emerald-900">Savings Target Goal</span>
+                                    <span id="savings-target-cost" class="text-xs font-extrabold text-emerald-700">₹50,000</span>
+                                </div>
+
+                                <!-- Progress Bar -->
+                                <div class="space-y-1.5 pt-2">
+                                    <div class="flex justify-between text-xs font-semibold">
+                                        <span class="text-slate-500">Funded Progress</span>
+                                        <span id="savings-progress-percent" class="text-emerald-700">36%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+                                        <div id="savings-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-3 rounded-full transition-all duration-500" style="width: 36%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-white rounded-xl border border-emerald-200 flex items-center justify-between shadow-xs">
+                                <div>
+                                    <div class="text-[11px] text-slate-500 font-medium">Estimated Monthly Saving Needed</div>
+                                    <div id="savings-monthly-result" class="text-2xl font-black text-emerald-700">₹6,400 / mo</div>
+                                </div>
+                                <div class="p-3 bg-emerald-100 text-emerald-700 rounded-xl">
+                                    <i data-lucide="trending-up" class="w-6 h-6"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Leave & Holiday Optimizer -->
+            <div id="view-leave-optimizer" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
+                    <div class="border-b border-slate-100 pb-4">
+                        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="zap" class="w-5 h-5 text-amber-500"></i>
+                            <span>2026–2027 Leave Hacks & Long Weekend Optimizer</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Maximize continuous vacation days ex-Delhi while minimizing paid annual office leaves.</p>
+                    </div>
+
+                    <!-- Hacks Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <!-- Hack 1: Thanksgiving Nov 2026 -->
+                        <div class="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl space-y-3">
+                            <div class="flex justify-between items-start">
+                                <span class="px-2 py-0.5 bg-blue-600 text-white text-[10px] font-bold rounded-full uppercase">Nov 2026 Hack</span>
+                                <span class="text-xs font-bold text-blue-900">9-Day Long Break</span>
+                            </div>
+                            <h3 class="font-extrabold text-slate-900 text-sm">Thanksgiving Week Bridge (Nov 21–29, 2026)</h3>
+                            <p class="text-xs text-slate-600">
+                                Combine <strong>Guru Nanak Jayanti (Nov 24, Tue)</strong> with 2 weekends + 3 paid office leaves (Mon Nov 23, Wed Nov 25, Fri Nov 27) for 9 continuous days off!
+                            </p>
+                            <button onclick="applyThanksgivingDates()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs transition">
+                                Apply to Active Trip
+                            </button>
+                        </div>
+
+                        <!-- Hack 2: Christmas & New Year 2026-27 -->
+                        <div class="p-4 bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-2xl space-y-3">
+                            <div class="flex justify-between items-start">
+                                <span class="px-2 py-0.5 bg-purple-600 text-white text-[10px] font-bold rounded-full uppercase">Dec 2026 Hack</span>
+                                <span class="text-xs font-bold text-purple-900">10-Day Year-End Break</span>
+                            </div>
+                            <h3 class="font-extrabold text-slate-900 text-sm">Christmas to New Year Escape (Dec 25 - Jan 3)</h3>
+                            <p class="text-xs text-slate-600">
+                                Take <strong>Christmas Day (Dec 25, Fri)</strong> + 4 paid leaves (Dec 28-31) to enjoy 10 continuous holiday days extending into 2027!
+                            </p>
+                            <button onclick="applyNewYearDates()" class="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl shadow-xs transition">
+                                Apply to Active Trip
+                            </button>
+                        </div>
+
+                        <!-- Hack 3: Holi & Good Friday March 2027 -->
+                        <div class="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl space-y-3">
+                            <div class="flex justify-between items-start">
+                                <span class="px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-full uppercase">Mar 2027 Hack</span>
+                                <span class="text-xs font-bold text-emerald-900">9-Day Spring Break</span>
+                            </div>
+                            <h3 class="font-extrabold text-slate-900 text-sm">Holi to Good Friday Double Bridge (Mar 20–28, 2027)</h3>
+                            <p class="text-xs text-slate-600">
+                                Combine <strong>Holi (Mar 22, Mon)</strong> and <strong>Good Friday (Mar 26, Fri)</strong> with just 3 paid leaves (Tue, Wed, Thu) for a full 9-day Kerala or Vietnam retreat.
+                            </p>
+                            <button onclick="applySpringDates()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-xs transition">
+                                Apply to Active Trip
+                            </button>
+                        </div>
+
+                        <!-- Hack 4: Diwali Oct 2027 -->
+                        <div class="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl space-y-3">
+                            <div class="flex justify-between items-start">
+                                <span class="px-2 py-0.5 bg-amber-600 text-white text-[10px] font-bold rounded-full uppercase">Oct 2027 Hack</span>
+                                <span class="text-xs font-bold text-amber-900">5-Day Festive Escape</span>
+                            </div>
+                            <h3 class="font-extrabold text-slate-900 text-sm">Diwali & Extended Weekend (Oct 28 - Nov 1, 2027)</h3>
+                            <p class="text-xs text-slate-600">
+                                <strong>Diwali (Oct 29, Fri)</strong> creates an instant 3-day weekend. Add 1 day of leave on Mon Nov 1 for a 5-day domestic desert circuit!
+                            </p>
+                            <button onclick="applyDiwali2027Dates()" class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-xl shadow-xs transition">
+                                Apply to Active Trip
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal: Add / Edit Trip -->
+    <div id="modal-trip" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 id="modal-trip-title" class="font-bold text-slate-900 text-base">Create Travel Plan</h3>
+                <button onclick="closeTripModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <form id="trip-form" onsubmit="handleTripSubmit(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Destination / Trip Title</label>
+                    <input type="text" id="trip-input-title" required placeholder="e.g. Vietnam Hanoi & Ha Long Bay" class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Target Departure Window</label>
-                        <select id="savings-month" onchange="updateSavingsCalc()" class="w-full border rounded p-2 text-slate-800 focus:ring-1 focus:ring-blue-500">
-                            <option value="2026-11">Nov 2026 (Thanksgiving)</option>
-                            <option value="2026-12">Dec 2026</option>
-                            <option value="2027-01">Jan 2027 (Republic Day)</option>
-                            <option value="2027-03">Mar 2027 (Holi Weekend)</option>
-                            <option value="2027-10">Oct 2027 (Diwali Window)</option>
+                        <label class="block font-semibold text-slate-700 mb-1">Travel Type</label>
+                        <select id="trip-input-type" class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
+                            <option value="Solo - Domestic">Solo - Domestic</option>
+                            <option value="Couple - Domestic">Couple - Domestic</option>
+                            <option value="Couple - International" selected>Couple - International</option>
                         </select>
                     </div>
-                    <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-200 mt-4">
-                        <div class="text-xs text-emerald-800 font-medium">Required Monthly Savings:</div>
-                        <div id="monthly-saving-result" class="text-xl font-extrabold text-emerald-700 mt-1">₹0 / mo</div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Budget Cap (₹)</label>
+                        <input type="number" id="trip-input-budget" value="50000" step="1000" required class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
                     </div>
                 </div>
-            </div>
 
-            <!-- Indian Holiday Calendar Reference (2026 & 2027) -->
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-base font-bold text-slate-900">🗓️ Indian Holidays</h2>
-                    <div class="flex gap-1">
-                        <button id="year-btn-2026" onclick="setHolidayYear(2026)" class="text-xs px-2.5 py-1 rounded bg-blue-600 text-white font-semibold">2026</button>
-                        <button id="year-btn-2027" onclick="setHolidayYear(2027)" class="text-xs px-2.5 py-1 rounded bg-slate-100 text-slate-600 font-semibold">2027</button>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Start Date</label>
+                        <input type="date" id="trip-input-start" value="2026-11-21" required class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">End Date</label>
+                        <input type="date" id="trip-input-end" value="2026-11-29" required class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
                     </div>
                 </div>
-                <div id="holiday-list-container" class="text-xs space-y-2 max-h-64 overflow-y-auto pr-1">
-                    <!-- Holidays rendered dynamically -->
+
+                <div class="pt-2 flex gap-3">
+                    <button type="button" onclick="closeTripModal()" class="flex-1 py-2.5 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 shadow-xs">Save Trip</button>
                 </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Expense Item / Alternative Option Quote -->
+    <div id="modal-expense" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-900 text-base">Add Line Item / Option Quote</h3>
+                <button onclick="closeExpenseModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
 
+            <form id="expense-form" onsubmit="handleExpenseSubmit(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Expense Line Item Group</label>
+                    <input type="text" id="exp-input-item-name" required placeholder="e.g. Return Flight DEL-HAN or Old Quarter Hotel" class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
+                    <p class="text-[10px] text-slate-400 mt-1">Items with matching group names will combine into comparison choices!</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Category</label>
+                        <select id="exp-input-category" class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
+                            <option value="Flights/Trains">Flights / Trains</option>
+                            <option value="Stay">Stay / Accommodation</option>
+                            <option value="Food">Food & Dining</option>
+                            <option value="Activities">Activities & Visas</option>
+                            <option value="Local Transport">Local Transport</option>
+                            <option value="Misc">Misc / Shopping</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Source / Booking App</label>
+                        <input type="text" id="exp-input-source" required placeholder="e.g. Skyscanner / VietJet / Agoda" class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Estimated Cost Quote (₹)</label>
+                    <input type="number" id="exp-input-cost" required placeholder="21000" class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium">
+                </div>
+
+                <div class="flex items-center gap-2 pt-1">
+                    <input type="checkbox" id="exp-input-active" checked class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                    <label for="exp-input-active" class="text-xs font-semibold text-slate-700">Set as Active Choice for Trip Total</label>
+                </div>
+
+                <div class="pt-2 flex gap-3">
+                    <button type="button" onclick="closeExpenseModal()" class="flex-1 py-2.5 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 shadow-xs">Add Quote Option</button>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <!-- Main Workspace: Detailed Trip Configurator -->
-        <div class="lg:col-span-2 space-y-6">
-            <div id="active-trip-workspace" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                <!-- Trip workspace rendered dynamically -->
-            </div>
-        </div>
-
-    </main>
-
+    <!-- Application Logic -->
     <script>
-        // 2026 & 2027 Indian Gazetted & Major Restricted Holidays Dataset
+        // -------------------------------------------------------------
+        // DATASETS & GLOBAL STATE (2026-2027 INDIAN HOLIDAYS)
+        // -------------------------------------------------------------
         const INDIAN_HOLIDAYS = [
-            // 2026 Holidays
+            // 2026 Gazetted & Restricted
             { date: '2026-01-26', name: 'Republic Day', type: 'Gazetted' },
             { date: '2026-03-04', name: 'Holi', type: 'Gazetted' },
             { date: '2026-04-03', name: 'Good Friday', type: 'Gazetted' },
@@ -118,389 +546,949 @@
             { date: '2026-10-20', name: 'Dussehra', type: 'Gazetted' },
             { date: '2026-11-08', name: 'Diwali', type: 'Gazetted' },
             { date: '2026-11-24', name: 'Guru Nanak Jayanti', type: 'Gazetted' },
-            { date: '2026-11-26', name: 'US Thanksgiving (Reference)', type: 'Restricted' },
+            { date: '2026-11-26', name: 'US Thanksgiving Ref.', type: 'Restricted' },
             { date: '2026-12-25', name: 'Christmas Day', type: 'Gazetted' },
 
-            // 2027 Holidays
-            { date: '2027-01-01', name: 'New Year\'s Day', type: 'Restricted' },
-            { date: '2027-01-14', name: 'Makar Sankranti / Pongal', type: 'Restricted' },
+            // 2027 Gazetted & Restricted
             { date: '2027-01-26', name: 'Republic Day', type: 'Gazetted' },
-            { date: '2027-03-10', name: 'Eid-ul-Fitr', type: 'Gazetted' },
-            { date: '2027-03-23', name: 'Holi', type: 'Gazetted' },
+            { date: '2027-03-22', name: 'Holi', type: 'Gazetted' },
             { date: '2027-03-26', name: 'Good Friday', type: 'Gazetted' },
-            { date: '2027-04-15', name: 'Ram Navami', type: 'Gazetted' },
-            { date: '2027-04-19', name: 'Mahavir Jayanti', type: 'Gazetted' },
-            { date: '2027-05-17', name: 'Eid-ul-Adha (Bakrid)', type: 'Gazetted' },
-            { date: '2027-05-20', name: 'Buddha Purnima', type: 'Gazetted' },
             { date: '2027-08-15', name: 'Independence Day', type: 'Gazetted' },
-            { date: '2027-08-25', name: 'Janmashtami', type: 'Gazetted' },
             { date: '2027-10-02', name: 'Gandhi Jayanti', type: 'Gazetted' },
-            { date: '2027-10-09', name: 'Dussehra (Vijayadashami)', type: 'Gazetted' },
-            { date: '2027-10-29', name: 'Diwali (Deepavali)', type: 'Gazetted' },
+            { date: '2027-10-09', name: 'Dussehra', type: 'Gazetted' },
+            { date: '2027-10-29', name: 'Diwali', type: 'Gazetted' },
             { date: '2027-11-14', name: 'Guru Nanak Jayanti', type: 'Gazetted' },
+            { date: '2027-11-25', name: 'US Thanksgiving Ref.', type: 'Restricted' },
             { date: '2027-12-25', name: 'Christmas Day', type: 'Gazetted' }
         ];
 
-        // Initial Sample State
-        let appData = {
-            activeHolidayYear: 2026,
-            trips: [
-                {
-                    id: 'trip-2026-vietnam',
-                    title: 'Vietnam (Hanoi & Ninh Binh)',
-                    type: 'Couple - International',
-                    startDate: '2026-11-21',
-                    endDate: '2026-11-29',
-                    budgetCap: 50000,
-                    expenses: [
-                        { id: 'e1', title: 'Roundtrip Flights DEL-HAN (VietJet)', category: 'Travel', source: 'Skyscanner', cost: 21000 },
-                        { id: 'e2', title: 'Old Quarter Boutique Hotel (6N)', category: 'Stay', source: 'Agoda', cost: 9800 },
-                        { id: 'e3', title: 'Ha Long Day Cruise & Transfers', category: 'Activities', source: 'Klook', cost: 6500 },
-                        { id: 'e4', title: 'Vietnam Visas (2 PAX)', category: 'Misc', source: 'Gov Portal', cost: 4200 }
-                    ]
-                },
-                {
-                    id: 'trip-2027-holi',
-                    title: 'Kerala Backwaters & Varkala Escape',
-                    type: 'Couple - Domestic',
-                    startDate: '2027-03-20',
-                    endDate: '2027-03-28',
-                    budgetCap: 50000,
-                    expenses: [
-                        { id: 'e20', title: 'Flights DEL-TRV Roundtrip', category: 'Travel', source: 'MakeMyTrip', cost: 16500 },
-                        { id: 'e21', title: 'Cliff Resort Varkala & Homestay', category: 'Stay', source: 'Booking.com', cost: 14000 },
-                        { id: 'e22', title: 'Food & Scooter Rentals', category: 'Activities', source: 'Local', cost: 9000 }
-                    ]
-                }
-            ],
-            activeTripId: 'trip-2026-vietnam'
+        const SAMPLE_TRIPS = [
+            {
+                id: 'trip-vietnam',
+                title: 'Vietnam (Hanoi, Ha Long & Ninh Binh)',
+                type: 'Couple - International',
+                budgetCap: 50000,
+                startDate: '2026-11-21',
+                endDate: '2026-11-29',
+                expenses: [
+                    { id: 'v1', itemName: 'Return Flight DEL-HAN', category: 'Flights/Trains', source: 'VietJet Direct', cost: 22000, selected: true },
+                    { id: 'v2', itemName: 'Return Flight DEL-HAN', category: 'Flights/Trains', source: 'AirAsia (1 Stop)', cost: 19800, selected: false },
+                    { id: 'v3', itemName: 'Old Quarter Hotel (5 Nights)', category: 'Stay', source: 'Agoda', cost: 9500, selected: true },
+                    { id: 'v4', itemName: 'Old Quarter Hotel (5 Nights)', category: 'Stay', source: 'Booking.com', cost: 10800, selected: false },
+                    { id: 'v5', itemName: 'Ha Long Bay Day Cruise (2 PAX)', category: 'Activities', source: 'Klook', cost: 6200, selected: true },
+                    { id: 'v6', itemName: 'Vietnam E-Visa (2 PAX)', category: 'Activities', source: 'Gov Portal', cost: 4200, selected: true },
+                    { id: 'v7', itemName: 'Street Food & Dining Budget', category: 'Food', source: 'Local Estimate', cost: 5000, selected: true }
+                ]
+            },
+            {
+                id: 'trip-jaisalmer',
+                title: 'Jaisalmer & Jodhpur Desert Circuit',
+                type: 'Couple - Domestic',
+                budgetCap: 50000,
+                startDate: '2026-12-01',
+                endDate: '2026-12-06',
+                expenses: [
+                    { id: 'j1', itemName: 'Delhi-Jaisalmer Transit', category: 'Flights/Trains', source: 'IRCTC 2AC Train', cost: 4800, selected: true },
+                    { id: 'j2', itemName: 'Delhi-Jaisalmer Transit', category: 'Flights/Trains', source: 'Alliance Air Flight', cost: 11200, selected: false },
+                    { id: 'j3', itemName: 'Sam Sand Dunes Luxury Tent', category: 'Stay', source: 'MakeMyTrip', cost: 12500, selected: true },
+                    { id: 'j4', itemName: 'Heritage Fort Haveli Stay (3N)', category: 'Stay', source: 'Direct Booking', cost: 9000, selected: true },
+                    { id: 'j5', itemName: 'Desert Safari & Folk Show', category: 'Activities', source: 'Camp Operator', cost: 3500, selected: true },
+                    { id: 'j6', itemName: 'Rajasthani Thali & Cafes', category: 'Food', source: 'Estimate', cost: 4500, selected: true }
+                ]
+            },
+            {
+                id: 'trip-kerala-2027',
+                title: 'Kerala Varkala Cliff & Alleppey Kayaking',
+                type: 'Couple - Domestic',
+                budgetCap: 45000,
+                startDate: '2027-03-20',
+                endDate: '2027-03-28',
+                expenses: [
+                    { id: 'k1', itemName: 'Flight DEL-TRV Roundtrip', category: 'Flights/Trains', source: 'Indigo via MMT', cost: 18500, selected: true },
+                    { id: 'k2', itemName: 'Varkala Cliff Resort (4N)', category: 'Stay', source: 'Agoda', cost: 12000, selected: true },
+                    { id: 'k3', itemName: 'Alleppey Backwater Kayaking', category: 'Activities', source: 'GetYourGuide', cost: 3200, selected: true },
+                    { id: 'k4', itemName: 'Seafood & Cafe Budget', category: 'Food', source: 'Local Estimate', cost: 6000, selected: true }
+                ]
+            }
+        ];
+
+        let state = {
+            trips: [],
+            activeTripId: null,
+            activeFilter: 'all',
+            activeTab: 'details',
+            editingTripId: null,
+            chartInstance: null,
+            calendarYear: 2026,
+            calendarMonth: 10, // November (0-indexed: 10 = Nov)
+            holidaySnapshotYear: 2026
         };
 
-        function init() {
-            loadFromLocalStorage();
+        // -------------------------------------------------------------
+        // INITIALIZATION & PERSISTENCE
+        // -------------------------------------------------------------
+        window.onload = function() {
+            loadState();
+            lucide.createIcons();
+            renderAll();
+        };
+
+        function loadState() {
+            const saved = localStorage.getItem('delhi_travel_app_data_v2');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state.trips = parsed.trips || SAMPLE_TRIPS;
+                    state.activeTripId = parsed.activeTripId || state.trips[0]?.id;
+                } catch(e) {
+                    state.trips = SAMPLE_TRIPS;
+                    state.activeTripId = SAMPLE_TRIPS[0].id;
+                }
+            } else {
+                state.trips = SAMPLE_TRIPS;
+                state.activeTripId = SAMPLE_TRIPS[0].id;
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('delhi_travel_app_data_v2', JSON.stringify({
+                trips: state.trips,
+                activeTripId: state.activeTripId
+            }));
+        }
+
+        function renderAll() {
             renderTripsList();
-            renderActiveWorkspace();
-            renderHolidayCalendar();
-            updateSavingsCalc();
+            renderHolidaySnapshot();
+            renderSavingsDropdowns();
+            updateSavingsTracker();
+            renderActiveTrip();
+            renderCalendarView();
+            lucide.createIcons();
         }
 
-        function setHolidayYear(year) {
-            appData.activeHolidayYear = year;
-            document.getElementById('year-btn-2026').className = year === 2026 ? "text-xs px-2.5 py-1 rounded bg-blue-600 text-white font-semibold" : "text-xs px-2.5 py-1 rounded bg-slate-100 text-slate-600 font-semibold";
-            document.getElementById('year-btn-2027').className = year === 2027 ? "text-xs px-2.5 py-1 rounded bg-blue-600 text-white font-semibold" : "text-xs px-2.5 py-1 rounded bg-slate-100 text-slate-600 font-semibold";
-            renderHolidayCalendar();
+        // -------------------------------------------------------------
+        // HELPER UTILITIES & CALCULATORS
+        // -------------------------------------------------------------
+        function formatINR(val) {
+            return '₹' + Math.round(val).toLocaleString('en-IN');
         }
 
-        function renderHolidayCalendar() {
-            const container = document.getElementById('holiday-list-container');
-            const filtered = INDIAN_HOLIDAYS.filter(h => h.date.startsWith(appData.activeHolidayYear.toString()));
+        function calculatePaidLeaves(startDateStr, endDateStr) {
+            if (!startDateStr || !endDateStr) return { leaves: 0, holidaysCount: 0, weekendDays: 0 };
             
-            container.innerHTML = filtered.map(h => {
-                const dateObj = new Date(h.date);
-                const dayName = dateObj.toLocaleDateString('en-IN', { weekday: 'short' });
-                const isGazetted = h.type === 'Gazetted';
-                return `
-                    <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
-                        <div>
-                            <div class="font-medium text-slate-800">${h.name}</div>
-                            <div class="text-[10px] text-slate-500">${h.date} (${dayName})</div>
-                        </div>
-                        <span class="text-[10px] px-2 py-0.5 rounded-full ${isGazetted ? 'badge-gazetted' : 'badge-restricted'}">${h.type}</span>
-                    </div>
-                `;
-            }).join('');
+            let current = new Date(startDateStr);
+            const end = new Date(endDateStr);
+            let leaves = 0;
+            let holidaysCount = 0;
+            let weekendDays = 0;
+
+            const gazettedDates = INDIAN_HOLIDAYS.filter(h => h.type === 'Gazetted').map(h => h.date);
+
+            while (current <= end) {
+                const dayOfWeek = current.getDay(); // 0 = Sun, 6 = Sat
+                const dateStr = current.toISOString().split('T')[0];
+
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    weekendDays++;
+                } else if (gazettedDates.includes(dateStr)) {
+                    holidaysCount++;
+                } else {
+                    leaves++;
+                }
+                current.setDate(current.getDate() + 1);
+            }
+
+            return { leaves, holidaysCount, weekendDays };
         }
 
+        function getActiveTripCost(trip) {
+            if (!trip || !trip.expenses) return 0;
+            return trip.expenses
+                .filter(e => e.selected)
+                .reduce((sum, e) => sum + Number(e.cost), 0);
+        }
+
+        // -------------------------------------------------------------
+        // NAVIGATION & TABS
+        // -------------------------------------------------------------
+        function switchTab(tab) {
+            state.activeTab = tab;
+            ['details', 'calendar', 'savings', 'leave-optimizer'].forEach(t => {
+                const view = document.getElementById(`view-${t}`);
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    view.classList.remove('hidden');
+                    btn.className = 'py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-blue-600 text-white shadow-xs';
+                } else {
+                    view.classList.add('hidden');
+                    btn.className = 'py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100';
+                }
+            });
+
+            if (tab === 'calendar') renderCalendarView();
+            if (tab === 'savings') updateSavingsTracker();
+            lucide.createIcons();
+        }
+
+        function filterTrips(filter) {
+            state.activeFilter = filter;
+            ['all', 'Solo', 'Couple'].forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if (f === filter) {
+                    btn.className = 'flex-1 py-1 rounded-md text-center transition bg-white shadow-xs font-semibold text-slate-800';
+                } else {
+                    btn.className = 'flex-1 py-1 rounded-md text-center transition hover:text-slate-900';
+                }
+            });
+            renderTripsList();
+        }
+
+        // -------------------------------------------------------------
+        // SIDEBAR: TRIPS LIST RENDER
+        // -------------------------------------------------------------
         function renderTripsList() {
-            const container = document.getElementById('trips-container');
-            document.getElementById('trip-count').innerText = `${appData.trips.length} Plans`;
+            const container = document.getElementById('trips-list');
             container.innerHTML = '';
 
-            appData.trips.forEach(trip => {
-                const totalCost = trip.expenses.reduce((sum, e) => sum + e.cost, 0);
-                const isOver = totalCost > trip.budgetCap;
-                const isActive = trip.id === appData.activeTripId;
+            const filtered = state.trips.filter(t => {
+                if (state.activeFilter === 'all') return true;
+                return t.type.startsWith(state.activeFilter);
+            });
 
-                container.innerHTML += `
-                    <div onclick="setActiveTrip('${trip.id}')" class="p-3.5 rounded-xl border cursor-pointer transition ${isActive ? 'border-blue-600 bg-blue-50/50 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-white'}">
-                        <div class="flex justify-between items-start mb-1">
-                            <h3 class="font-bold text-slate-900 text-xs">${trip.title}</h3>
-                            <span class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">${trip.type}</span>
+            document.getElementById('trip-count-badge').innerText = filtered.length;
+
+            filtered.forEach(trip => {
+                const totalCost = getActiveTripCost(trip);
+                const isOver = totalCost > trip.budgetCap;
+                const isActive = trip.id === state.activeTripId;
+
+                const card = document.createElement('div');
+                card.onclick = () => {
+                    state.activeTripId = trip.id;
+                    saveState();
+                    renderAll();
+                };
+
+                card.className = `p-3.5 rounded-xl border cursor-pointer transition ${isActive ? 'border-blue-600 bg-blue-50/50 shadow-xs' : 'border-slate-200/80 hover:border-slate-300 bg-white'}`;
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-1 gap-2">
+                        <h3 class="font-bold text-slate-800 text-xs line-clamp-1">${trip.title}</h3>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded font-medium whitespace-nowrap ${trip.type.includes('International') ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-100 text-slate-600'}">${trip.type}</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 mb-2 font-medium">📅 ${trip.startDate} to ${trip.endDate}</div>
+                    <div class="flex justify-between items-center text-xs font-semibold pt-1 border-t border-slate-100/80">
+                        <span class="text-slate-700">${formatINR(totalCost)}</span>
+                        <span class="text-[11px] ${isOver ? 'text-red-600 font-bold' : 'text-emerald-600'}">${isOver ? 'Over Cap' : 'Cap: ' + formatINR(trip.budgetCap)}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // -------------------------------------------------------------
+        // SIDEBAR: HOLIDAY SNAPSHOT WIDGET
+        // -------------------------------------------------------------
+        function toggleHolidayYearView() {
+            state.holidaySnapshotYear = (state.holidaySnapshotYear === 2026) ? 2027 : 2026;
+            renderHolidaySnapshot();
+        }
+
+        function renderHolidaySnapshot() {
+            const list = document.getElementById('holiday-snapshot-list');
+            const toggleBtn = document.getElementById('holiday-year-toggle');
+            toggleBtn.innerText = `View ${state.holidaySnapshotYear === 2026 ? '2027' : '2026'}`;
+
+            list.innerHTML = '';
+            const holidays = INDIAN_HOLIDAYS.filter(h => h.date.startsWith(String(state.holidaySnapshotYear)));
+
+            holidays.forEach(h => {
+                const dt = new Date(h.date);
+                const dayName = dt.toLocaleDateString('en-US', { weekday: 'short' });
+                const monthName = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                list.innerHTML += `
+                    <div class="pt-1.5 flex justify-between items-center">
+                        <div>
+                            <div class="font-medium text-slate-800">${h.name}</div>
+                            <div class="text-[10px] text-slate-400">${h.type} Holiday</div>
                         </div>
-                        <div class="text-[11px] text-slate-500 mb-2">📅 ${trip.startDate} to ${trip.endDate}</div>
-                        <div class="flex justify-between items-center text-xs font-semibold">
-                            <span>₹${totalCost.toLocaleString('en-IN')}</span>
-                            <span class="${isOver ? 'text-red-600' : 'text-emerald-600'}">${isOver ? 'Over Budget' : 'Within ₹50k'}</span>
-                        </div>
+                        <span class="px-2 py-0.5 ${h.type === 'Gazetted' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-700'} font-semibold rounded text-[11px]">${monthName} (${dayName})</span>
                     </div>
                 `;
             });
         }
 
-        function setActiveTrip(id) {
-            appData.activeTripId = id;
-            saveToLocalStorage();
-            renderTripsList();
-            renderActiveWorkspace();
-        }
-
-        function calculatePaidLeaves(startStr, endStr) {
-            if (!startStr || !endStr) return 0;
-            let current = new Date(startStr);
-            const end = new Date(endStr);
-            let leaveCount = 0;
-
-            const gazettedDates = INDIAN_HOLIDAYS.filter(h => h.type === 'Gazetted').map(h => h.date);
-
-            while (current <= end) {
-                const dayOfWeek = current.getDay();
-                const dateString = current.toISOString().split('T')[0];
-                
-                // Exclude weekends (Sun=0, Sat=6) and Gazetted Holidays
-                if (dayOfWeek !== 0 && dayOfWeek !== 6 && !gazettedDates.includes(dateString)) {
-                    leaveCount++;
-                }
-                current.setDate(current.getDate() + 1);
-            }
-            return leaveCount;
-        }
-
-        function renderActiveWorkspace() {
-            const workspace = document.getElementById('active-trip-workspace');
-            const trip = appData.trips.find(t => t.id === appData.activeTripId);
+        // -------------------------------------------------------------
+        // MAIN WORKSPACE: ACTIVE TRIP DASHBOARD
+        // -------------------------------------------------------------
+        function renderActiveTrip() {
+            const trip = state.trips.find(t => t.id === state.activeTripId);
+            const header = document.getElementById('active-trip-header');
 
             if (!trip) {
-                workspace.innerHTML = `<div class="text-center py-12 text-slate-400">Select or create a trip to start planning.</div>`;
+                header.innerHTML = `<div class="text-center py-8 text-slate-400">No travel plan selected. Select one from the left sidebar or create a new trip.</div>`;
                 return;
             }
 
-            const totalCost = trip.expenses.reduce((sum, e) => sum + e.cost, 0);
-            const paidLeaves = calculatePaidLeaves(trip.startDate, trip.endDate);
-            const remainingMargin = trip.budgetCap - totalCost;
+            const totalCost = getActiveTripCost(trip);
+            const remaining = trip.budgetCap - totalCost;
+            const leaveInfo = calculatePaidLeaves(trip.startDate, trip.endDate);
 
-            workspace.innerHTML = `
-                <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 pb-6 border-b">
-                    <div>
+            header.innerHTML = `
+                <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-slate-100 pb-5">
+                    <div class="space-y-1">
                         <div class="flex items-center gap-2">
-                            <h2 class="text-xl font-bold text-slate-900">${trip.title}</h2>
+                            <span class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-blue-50 text-blue-700 border border-blue-200/60">${trip.type}</span>
+                            <span class="text-xs text-slate-400">Ex-New Delhi (DEL)</span>
                         </div>
-                        <p class="text-xs text-slate-500 mt-1">Ex-New Delhi Departure Hub</p>
+                        <h2 class="text-xl font-extrabold text-slate-900">${trip.title}</h2>
+                        <p class="text-xs text-slate-500 font-medium">📅 ${trip.startDate} — ${trip.endDate}</p>
                     </div>
+
                     <div class="flex items-center gap-2">
-                        <button onclick="deleteCurrentTrip()" class="text-xs text-red-600 hover:text-red-700 font-medium px-3 py-1.5 rounded border border-red-200 hover:bg-red-50">Delete Trip</button>
+                        <button onclick="cloneCurrentTrip()" title="Duplicate Trip" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition border border-slate-200">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="openTripModal('${trip.id}')" title="Edit Trip Details" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition border border-slate-200">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="deleteCurrentTrip()" title="Delete Trip" class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition border border-rose-200">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Inputs Bar -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 my-5">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Start Date</label>
-                        <input type="date" value="${trip.startDate}" onchange="updateTripMeta('startDate', this.value)" class="w-full border rounded p-2 text-xs">
+                <!-- Stats Bar -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-5">
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60">
+                        <div class="text-[11px] font-medium text-slate-500">Selected Total Cost</div>
+                        <div class="text-base font-extrabold text-slate-900 mt-0.5">${formatINR(totalCost)}</div>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">End Date</label>
-                        <input type="date" value="${trip.endDate}" onchange="updateTripMeta('endDate', this.value)" class="w-full border rounded p-2 text-xs">
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60">
+                        <div class="text-[11px] font-medium text-slate-500">Target Budget Cap</div>
+                        <div class="text-base font-extrabold text-slate-900 mt-0.5">${formatINR(trip.budgetCap)}</div>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Trip Type</label>
-                        <select onchange="updateTripMeta('type', this.value)" class="w-full border rounded p-2 text-xs">
-                            <option value="Solo - Domestic" ${trip.type === 'Solo - Domestic' ? 'selected' : ''}>Solo - Domestic</option>
-                            <option value="Couple - Domestic" ${trip.type === 'Couple - Domestic' ? 'selected' : ''}>Couple - Domestic</option>
-                            <option value="Couple - International" ${trip.type === 'Couple - International' ? 'selected' : ''}>Couple - International</option>
-                        </select>
+                    <div class="p-3 rounded-xl border ${remaining >= 0 ? 'bg-emerald-50/60 border-emerald-200/80 text-emerald-900' : 'bg-rose-50/60 border-rose-200/80 text-rose-900'}">
+                        <div class="text-[11px] font-medium opacity-80">${remaining >= 0 ? 'Under Budget Margin' : 'Budget Exceeded By'}</div>
+                        <div class="text-base font-extrabold mt-0.5">${formatINR(Math.abs(remaining))}</div>
                     </div>
-                </div>
-
-                <!-- Key Metrics Cards -->
-                <div class="grid grid-cols-3 gap-4 my-6">
-                    <div class="p-3 bg-slate-50 rounded-xl border text-center">
-                        <div class="text-[11px] text-slate-500">Estimated Total Cost</div>
-                        <div class="text-lg font-extrabold text-slate-900 mt-0.5">₹${totalCost.toLocaleString('en-IN')}</div>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl border text-center">
-                        <div class="text-[11px] text-slate-500">Remaining Budget</div>
-                        <div class="text-lg font-extrabold ${remainingMargin < 0 ? 'text-red-600' : 'text-emerald-600'} mt-0.5">₹${remainingMargin.toLocaleString('en-IN')}</div>
-                    </div>
-                    <div class="p-3 bg-blue-50 rounded-xl border border-blue-200 text-center">
-                        <div class="text-[11px] text-blue-700 font-semibold">Office Leaves Needed</div>
-                        <div class="text-lg font-extrabold text-blue-900 mt-0.5">${paidLeaves} Days</div>
-                    </div>
-                </div>
-
-                <!-- Expenses Table -->
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="font-bold text-slate-900 text-sm">Line Items & Quotes Comparison</h3>
-                        <button onclick="addExpensePrompt()" class="text-xs bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg transition">+ Add Expense</button>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead>
-                                <tr class="bg-slate-100 border-b text-slate-600">
-                                    <th class="p-2.5">Item Name</th>
-                                    <th class="p-2.5">Category</th>
-                                    <th class="p-2.5">Source / Platform</th>
-                                    <th class="p-2.5 text-right">Cost (₹)</th>
-                                    <th class="p-2.5 text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y">
-                                ${trip.expenses.map((exp, idx) => `
-                                    <tr class="hover:bg-slate-50">
-                                        <td class="p-2.5 font-medium text-slate-800">${exp.title}</td>
-                                        <td class="p-2.5 text-slate-500">${exp.category}</td>
-                                        <td class="p-2.5 text-blue-600 font-medium">${exp.source}</td>
-                                        <td class="p-2.5 text-right font-bold text-slate-900">₹${exp.cost.toLocaleString('en-IN')}</td>
-                                        <td class="p-2.5 text-center">
-                                            <button onclick="deleteExpense(${idx})" class="text-red-500 hover:text-red-700">✕</button>
-                                        </td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+                    <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-200/80">
+                        <div class="text-[11px] font-medium text-blue-800">Paid Leaves Required</div>
+                        <div class="text-base font-extrabold text-blue-900 mt-0.5">${leaveInfo.leaves} Days <span class="text-[10px] font-normal text-blue-700">(${leaveInfo.holidaysCount} Holiday)</span></div>
                     </div>
                 </div>
             `;
+
+            renderExpenseTable(trip);
+            renderComparisonMatrix(trip);
+            renderChart(trip);
         }
 
-        function createNewTripPrompt() {
-            const title = prompt("Enter Trip Destination/Title:", "Thailand Coastal Escape");
-            if (!title) return;
-            const type = prompt("Type (Solo - Domestic / Couple - Domestic / Couple - International):", "Couple - International");
-            
-            const newTrip = {
-                id: 'trip-' + Date.now(),
-                title: title,
-                type: type || 'Couple - International',
-                startDate: '2027-01-22',
-                endDate: '2027-01-27',
-                budgetCap: 50000,
-                expenses: []
-            };
+        // -------------------------------------------------------------
+        // EXPENSE TABLE & CHART RENDER
+        // -------------------------------------------------------------
+        function renderExpenseTable(trip) {
+            const tbody = document.getElementById('expense-items-table-body');
+            tbody.innerHTML = '';
 
-            appData.trips.push(newTrip);
-            setActiveTrip(newTrip.id);
-        }
-
-        function updateTripMeta(key, value) {
-            const trip = appData.trips.find(t => t.id === appData.activeTripId);
-            if (trip) {
-                trip[key] = value;
-                saveToLocalStorage();
-                renderTripsList();
-                renderActiveWorkspace();
+            if (!trip.expenses || trip.expenses.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">No expenses added yet. Click "Add Quote Option" above.</td></tr>`;
+                return;
             }
+
+            trip.expenses.forEach(exp => {
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-slate-50/80 transition ${exp.selected ? 'font-medium text-slate-800' : 'text-slate-400 italic bg-slate-50/30'}`;
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3">
+                        <div class="font-semibold text-slate-800">${exp.itemName}</div>
+                    </td>
+                    <td class="py-2.5 px-3">
+                        <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-medium">${exp.category}</span>
+                    </td>
+                    <td class="py-2.5 px-3 text-blue-600">${exp.source}</td>
+                    <td class="py-2.5 px-3 text-right font-bold">${formatINR(exp.cost)}</td>
+                    <td class="py-2.5 px-3 text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button onclick="toggleExpenseSelection('${exp.id}')" title="Toggle Active Choice" class="p-1 rounded hover:bg-slate-200 text-slate-600">
+                                <i data-lucide="${exp.selected ? 'check-circle-2' : 'circle'}" class="w-4 h-4 ${exp.selected ? 'text-emerald-600' : 'text-slate-300'}"></i>
+                            </button>
+                            <button onclick="deleteExpense('${exp.id}')" title="Delete Quote" class="p-1 rounded hover:bg-rose-100 text-rose-500">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            lucide.createIcons();
         }
 
-        function addExpensePrompt() {
-            const trip = appData.trips.find(t => t.id === appData.activeTripId);
+        function renderComparisonMatrix(trip) {
+            const container = document.getElementById('comparison-matrix-container');
+            container.innerHTML = '';
+
+            if (!trip || !trip.expenses || trip.expenses.length === 0) {
+                container.innerHTML = `<div class="text-center py-4 text-slate-400 text-xs">No expense items to compare.</div>`;
+                return;
+            }
+
+            // Group by itemName
+            const groups = {};
+            trip.expenses.forEach(exp => {
+                if (!groups[exp.itemName]) groups[exp.itemName] = [];
+                groups[exp.itemName].push(exp);
+            });
+
+            Object.keys(groups).forEach(itemName => {
+                const quotes = groups[itemName];
+                const card = document.createElement('div');
+                card.className = 'border border-slate-200/80 rounded-xl p-3 space-y-2 bg-slate-50/30';
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-slate-900 text-xs">${itemName}</h4>
+                        <span class="text-[10px] text-slate-400 font-medium">${quotes.length} Quote Option(s)</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                        ${quotes.map(q => `
+                            <div onclick="selectQuoteOption('${q.itemName}', '${q.id}')" class="p-2.5 rounded-xl border cursor-pointer transition ${q.selected ? 'border-blue-600 bg-blue-50/80 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'}">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-bold ${q.selected ? 'text-blue-700' : 'text-slate-800'}">${q.source}</span>
+                                    <i data-lucide="${q.selected ? 'check-circle-2' : 'circle'}" class="w-3.5 h-3.5 ${q.selected ? 'text-blue-600' : 'text-slate-300'}"></i>
+                                </div>
+                                <div class="text-sm font-extrabold text-slate-900">${formatINR(q.cost)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        function selectQuoteOption(itemName, selectedId) {
+            const trip = state.trips.find(t => t.id === state.activeTripId);
             if (!trip) return;
 
-            const title = prompt("Expense Title (e.g. VietJet Flight DEL-HAN):");
-            if (!title) return;
-            const source = prompt("Source / Platform (e.g. Skyscanner, Agoda, Klook):", "Skyscanner");
-            const cost = parseFloat(prompt("Estimated Cost (in INR):", "15000"));
+            trip.expenses.forEach(e => {
+                if (e.itemName === itemName) {
+                    e.selected = (e.id === selectedId);
+                }
+            });
 
-            if (!isNaN(cost)) {
-                trip.expenses.push({
-                    id: 'e-' + Date.now(),
-                    title,
-                    category: 'General',
-                    source: source || 'Direct',
-                    cost
-                });
-                saveToLocalStorage();
-                renderTripsList();
-                renderActiveWorkspace();
+            saveState();
+            renderActiveTrip();
+        }
+
+        function renderChart(trip) {
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            const legendContainer = document.getElementById('chart-legend');
+
+            const categories = ['Flights/Trains', 'Stay', 'Food', 'Activities', 'Local Transport', 'Misc'];
+            const categoryColors = {
+                'Flights/Trains': '#2563eb',
+                'Stay': '#10b981',
+                'Food': '#f59e0b',
+                'Activities': '#8b5cf6',
+                'Local Transport': '#06b6d4',
+                'Misc': '#64748b'
+            };
+
+            const totals = {};
+            categories.forEach(c => totals[c] = 0);
+
+            (trip.expenses || []).filter(e => e.selected).forEach(e => {
+                const cat = categories.includes(e.category) ? e.category : 'Misc';
+                totals[cat] += Number(e.cost);
+            });
+
+            const activeCategories = categories.filter(c => totals[c] > 0);
+            const dataValues = activeCategories.map(c => totals[c]);
+            const backgroundColors = activeCategories.map(c => categoryColors[c]);
+
+            if (state.chartInstance) {
+                state.chartInstance.destroy();
+            }
+
+            if (dataValues.length === 0) {
+                legendContainer.innerHTML = `<span class="col-span-2 text-center text-slate-400 py-2">No active items</span>`;
+                return;
+            }
+
+            state.chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: activeCategories,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: backgroundColors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '70%'
+                }
+            });
+
+            // Legend
+            legendContainer.innerHTML = '';
+            activeCategories.forEach((cat, idx) => {
+                legendContainer.innerHTML += `
+                    <div class="flex items-center justify-between text-slate-600">
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full inline-block" style="background:${backgroundColors[idx]}"></span>
+                            ${cat}
+                        </span>
+                        <span class="font-bold text-slate-800">${formatINR(totals[cat])}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // -------------------------------------------------------------
+        // FULL 2026-2027 CALENDAR TAB IMPLEMENTATION
+        // -------------------------------------------------------------
+        function changeCalendarMonth(delta) {
+            state.calendarMonth += delta;
+            if (state.calendarMonth > 11) {
+                state.calendarMonth = 0;
+                state.calendarYear += 1;
+            } else if (state.calendarMonth < 0) {
+                state.calendarMonth = 11;
+                state.calendarYear -= 1;
+            }
+
+            // Cap year between 2026 and 2027
+            if (state.calendarYear < 2026) { state.calendarYear = 2026; state.calendarMonth = 0; }
+            if (state.calendarYear > 2027) { state.calendarYear = 2027; state.calendarMonth = 11; }
+
+            renderCalendarView();
+        }
+
+        function renderCalendarView() {
+            const container = document.getElementById('calendar-months-grid');
+            container.innerHTML = '';
+
+            const m1Year = state.calendarYear;
+            const m1Month = state.calendarMonth;
+
+            // Calculate second month
+            let m2Year = m1Year;
+            let m2Month = m1Month + 1;
+            if (m2Month > 11) {
+                m2Month = 0;
+                m2Year += 1;
+            }
+
+            // Update Label Header
+            const dateObj1 = new Date(m1Year, m1Month, 1);
+            const dateObj2 = new Date(m2Year, m2Month, 1);
+            const label1 = dateObj1.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            const label2 = dateObj2.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+            document.getElementById('calendar-current-month-label').innerText = `${label1} - ${label2}`;
+
+            renderMonthGridToContainer(container, m1Year, m1Month);
+            if (m2Year <= 2027) {
+                renderMonthGridToContainer(container, m2Year, m2Month);
             }
         }
 
-        function deleteExpense(index) {
-            const trip = appData.trips.find(t => t.id === appData.activeTripId);
-            if (trip) {
-                trip.expenses.splice(index, 1);
-                saveToLocalStorage();
-                renderTripsList();
-                renderActiveWorkspace();
+        function renderMonthGridToContainer(parentContainer, year, monthIdx) {
+            const monthName = new Date(year, monthIdx, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+            const firstDayIndex = new Date(year, monthIdx, 1).getDay(); // 0 = Sun
+
+            const monthBox = document.createElement('div');
+            monthBox.className = 'border border-slate-200/80 rounded-2xl p-4 bg-slate-50/40 space-y-3';
+
+            monthBox.innerHTML = `
+                <h3 class="text-xs font-bold text-slate-800 text-center uppercase tracking-wider">${monthName}</h3>
+                <div class="grid grid-cols-7 text-center text-[10px] font-bold text-slate-400 uppercase">
+                    <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                </div>
+                <div id="grid-${year}-${monthIdx}" class="grid grid-cols-7 gap-1 text-xs"></div>
+            `;
+
+            parentContainer.appendChild(monthBox);
+            const gridContainer = document.getElementById(`grid-${year}-${monthIdx}`);
+
+            // Empty padding slots
+            for (let i = 0; i < firstDayIndex; i++) {
+                gridContainer.innerHTML += `<div></div>`;
             }
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${year}-${String(monthIdx + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const currentDate = new Date(year, monthIdx, d);
+                const dayOfWeek = currentDate.getDay();
+
+                const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+                const holiday = INDIAN_HOLIDAYS.find(h => h.date === dateStr);
+
+                // Check if date falls in ANY planned trip
+                let matchedTrips = state.trips.filter(t => t.startDate && t.endDate && dateStr >= t.startDate && dateStr <= t.endDate);
+                let isActiveTrip = matchedTrips.some(t => t.id === state.activeTripId);
+
+                let cellClass = 'bg-white border-slate-200/60 text-slate-700 hover:border-slate-400';
+                let indicatorBadge = '';
+
+                if (matchedTrips.length > 0) {
+                    if (isActiveTrip) {
+                        cellClass = 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold shadow-xs border-blue-600';
+                    } else {
+                        cellClass = 'bg-indigo-100 border-indigo-300 text-indigo-900 font-bold';
+                    }
+                } else if (holiday) {
+                    if (holiday.type === 'Gazetted') {
+                        cellClass = 'bg-amber-100 border-amber-300 text-amber-900 font-bold';
+                        indicatorBadge = `<span class="w-1.5 h-1.5 bg-amber-500 rounded-full absolute bottom-1"></span>`;
+                    } else {
+                        cellClass = 'bg-slate-200 border-slate-300 text-slate-800 font-semibold';
+                    }
+                } else if (isWeekend) {
+                    cellClass = 'bg-slate-100/70 border-slate-200/50 text-slate-500';
+                }
+
+                gridContainer.innerHTML += `
+                    <div onclick="clickCalendarDay('${dateStr}')" class="h-9 rounded-xl border flex flex-col items-center justify-center cursor-pointer transition ${cellClass} text-[11px] relative">
+                        <span>${d}</span>
+                        ${indicatorBadge}
+                    </div>
+                `;
+            }
+        }
+
+        function clickCalendarDay(dateStr) {
+            const card = document.getElementById('calendar-day-detail-card');
+            const titleEl = document.getElementById('calendar-detail-date');
+            const typeEl = document.getElementById('calendar-detail-type');
+            const textEl = document.getElementById('calendar-detail-text');
+
+            card.classList.remove('hidden');
+            titleEl.innerText = `Date: ${dateStr}`;
+
+            const holiday = INDIAN_HOLIDAYS.find(h => h.date === dateStr);
+            const matchedTrips = state.trips.filter(t => dateStr >= t.startDate && dateStr <= t.endDate);
+
+            let desc = [];
+            if (holiday) {
+                desc.push(`🎉 <strong>Holiday:</strong> ${holiday.name} (${holiday.type})`);
+            }
+
+            if (matchedTrips.length > 0) {
+                matchedTrips.forEach(t => {
+                    desc.push(`✈️ <strong>Trip:</strong> ${t.title} (${t.type})`);
+                });
+            }
+
+            const dt = new Date(dateStr);
+            if (dt.getDay() === 0 || dt.getDay() === 6) {
+                desc.push(`🗓️ Weekend Day`);
+            }
+
+            if (desc.length === 0) {
+                desc.push(`Regular Working Day ex-Delhi.`);
+            }
+
+            typeEl.innerText = holiday ? holiday.type : (matchedTrips.length > 0 ? 'Trip Day' : 'Working Day');
+            textEl.innerHTML = desc.join('<br>');
+        }
+
+        // -------------------------------------------------------------
+        // SAVINGS TAB SIMULATOR LOGIC
+        // -------------------------------------------------------------
+        function renderSavingsDropdowns() {
+            const select = document.getElementById('savings-target-trip');
+            if (!select) return;
+            select.innerHTML = '';
+            state.trips.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.id;
+                opt.text = t.title;
+                if (t.id === state.activeTripId) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        function updateSavingsTracker() {
+            const currentFund = parseFloat(document.getElementById('savings-current-input')?.value) || 0;
+            const targetTripId = document.getElementById('savings-target-trip')?.value || state.activeTripId;
+            const targetMonthVal = document.getElementById('savings-target-month')?.value || '12-2026';
+
+            const trip = state.trips.find(t => t.id === targetTripId);
+            const targetCost = trip ? getActiveTripCost(trip) : 50000;
+
+            const targetCostEl = document.getElementById('savings-target-cost');
+            if (targetCostEl) targetCostEl.innerText = formatINR(targetCost);
+
+            const progressPct = Math.min(100, Math.round((currentFund / (targetCost || 1)) * 100));
+            const progressPctEl = document.getElementById('savings-progress-percent');
+            const progressBarEl = document.getElementById('savings-progress-bar');
+            
+            if (progressPctEl) progressPctEl.innerText = `${progressPct}%`;
+            if (progressBarEl) progressBarEl.style.width = `${progressPct}%`;
+
+            // Calculate months remaining relative to October 2026 current baseline
+            const [mStr, yStr] = targetMonthVal.split('-');
+            const targetM = parseInt(mStr);
+            const targetY = parseInt(yStr);
+
+            const currentM = 10; // Oct 2026
+            const currentY = 2026;
+
+            const monthsRemaining = Math.max(1, (targetY - currentY) * 12 + (targetM - currentM));
+            const needed = Math.max(0, targetCost - currentFund);
+            const monthlySave = Math.ceil(needed / monthsRemaining);
+
+            const resultEl = document.getElementById('savings-monthly-result');
+            if (resultEl) resultEl.innerText = `${formatINR(monthlySave)} / mo`;
+        }
+
+        // -------------------------------------------------------------
+        // LEAVE HACKS / QUICK ACTIONS
+        // -------------------------------------------------------------
+        function applyThanksgivingDates() {
+            const trip = state.trips.find(t => t.id === state.activeTripId);
+            if (trip) {
+                trip.startDate = '2026-11-21';
+                trip.endDate = '2026-11-29';
+                saveState();
+                renderAll();
+                switchTab('details');
+            }
+        }
+
+        function applyNewYearDates() {
+            const trip = state.trips.find(t => t.id === state.activeTripId);
+            if (trip) {
+                trip.startDate = '2026-12-25';
+                trip.endDate = '2027-01-03';
+                saveState();
+                renderAll();
+                switchTab('details');
+            }
+        }
+
+        function applySpringDates() {
+            const trip = state.trips.find(t => t.id === state.activeTripId);
+            if (trip) {
+                trip.startDate = '2027-03-20';
+                trip.endDate = '2027-03-28';
+                saveState();
+                renderAll();
+                switchTab('details');
+            }
+        }
+
+        function applyDiwali2027Dates() {
+            const trip = state.trips.find(t => t.id === state.activeTripId);
+            if (trip) {
+                trip.startDate = '2027-10-28';
+                trip.endDate = '2027-11-01';
+                saveState();
+                renderAll();
+                switchTab('details');
+            }
+        }
+
+        // -------------------------------------------------------------
+        // MODALS & EVENT HANDLERS
+        // -------------------------------------------------------------
+        function openTripModal(tripId = null) {
+            state.editingTripId = tripId;
+            const modal = document.getElementById('modal-trip');
+            const titleEl = document.getElementById('modal-trip-title');
+
+            if (tripId) {
+                const trip = state.trips.find(t => t.id === tripId);
+                titleEl.innerText = 'Edit Travel Plan';
+                document.getElementById('trip-input-title').value = trip.title;
+                document.getElementById('trip-input-type').value = trip.type;
+                document.getElementById('trip-input-budget').value = trip.budgetCap;
+                document.getElementById('trip-input-start').value = trip.startDate;
+                document.getElementById('trip-input-end').value = trip.endDate;
+            } else {
+                titleEl.innerText = 'Create Travel Plan';
+                document.getElementById('trip-form').reset();
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeTripModal() {
+            const modal = document.getElementById('modal-trip');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function handleTripSubmit(e) {
+            e.preventDefault();
+            const title = document.getElementById('trip-input-title').value;
+            const type = document.getElementById('trip-input-type').value;
+            const budgetCap = parseFloat(document.getElementById('trip-input-budget').value);
+            const startDate = document.getElementById('trip-input-start').value;
+            const endDate = document.getElementById('trip-input-end').value;
+
+            if (state.editingTripId) {
+                const trip = state.trips.find(t => t.id === state.editingTripId);
+                trip.title = title;
+                trip.type = type;
+                trip.budgetCap = budgetCap;
+                trip.startDate = startDate;
+                trip.endDate = endDate;
+            } else {
+                const newTrip = {
+                    id: 'trip-' + Date.now(),
+                    title,
+                    type,
+                    budgetCap,
+                    startDate,
+                    endDate,
+                    expenses: []
+                };
+                state.trips.push(newTrip);
+                state.activeTripId = newTrip.id;
+            }
+
+            saveState();
+            closeTripModal();
+            renderAll();
+        }
+
+        function cloneCurrentTrip() {
+            const trip = state.trips.find(t => t.id === state.activeTripId);
+            if (!trip) return;
+
+            const cloned = JSON.parse(JSON.stringify(trip));
+            cloned.id = 'trip-' + Date.now();
+            cloned.title = `${trip.title} (Copy)`;
+            state.trips.push(cloned);
+            state.activeTripId = cloned.id;
+
+            saveState();
+            renderAll();
         }
 
         function deleteCurrentTrip() {
-            if (confirm("Are you sure you want to delete this trip plan?")) {
-                appData.trips = appData.trips.filter(t => t.id !== appData.activeTripId);
-                appData.activeTripId = appData.trips[0] ? appData.trips[0].id : null;
-                saveToLocalStorage();
-                init();
+            if (confirm('Are you sure you want to delete this trip plan?')) {
+                state.trips = state.trips.filter(t => t.id !== state.activeTripId);
+                state.activeTripId = state.trips[0] ? state.trips[0].id : null;
+                saveState();
+                renderAll();
             }
         }
 
-        function updateSavingsCalc() {
-            const target = parseFloat(document.getElementById('savings-target').value) || 50000;
-            const current = parseFloat(document.getElementById('savings-current').value) || 0;
-            const targetMonthStr = document.getElementById('savings-month').value;
-            
-            const [targetYear, targetMonth] = targetMonthStr.split('-').map(Number);
-            const now = new Date();
-            const currentYear = now.getFullYear();
-            const currentMonth = now.getMonth() + 1;
-
-            const totalMonths = ((targetYear - currentYear) * 12) + (targetMonth - currentMonth);
-            const monthsLeft = Math.max(1, totalMonths);
-
-            const remaining = Math.max(0, target - current);
-            const monthlyNeed = Math.ceil(remaining / monthsLeft);
-
-            document.getElementById('monthly-saving-result').innerText = `₹${monthlyNeed.toLocaleString('en-IN')} / mo`;
+        function openExpenseModal() {
+            document.getElementById('expense-form').reset();
+            const modal = document.getElementById('modal-expense');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
-        function saveToLocalStorage() {
-            try {
-                localStorage.setItem('delhi_travel_app_data', JSON.stringify(appData));
-            } catch (e) {
-                console.warn('Storage blocked');
+        function closeExpenseModal() {
+            const modal = document.getElementById('modal-expense');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function handleExpenseSubmit(e) {
+            e.preventDefault();
+            const trip = state.trips.find(t => t.id === state.activeTripId);
+            if (!trip) return;
+
+            const itemName = document.getElementById('exp-input-item-name').value;
+            const category = document.getElementById('exp-input-category').value;
+            const source = document.getElementById('exp-input-source').value;
+            const cost = parseFloat(document.getElementById('exp-input-cost').value);
+            const active = document.getElementById('exp-input-active').checked;
+
+            if (active) {
+                (trip.expenses || []).forEach(ex => {
+                    if (ex.itemName === itemName) ex.selected = false;
+                });
             }
+
+            trip.expenses.push({
+                id: 'exp-' + Date.now(),
+                itemName,
+                category,
+                source,
+                cost,
+                selected: active
+            });
+
+            saveState();
+            closeExpenseModal();
+            renderActiveTrip();
         }
 
-        function loadFromLocalStorage() {
-            try {
-                const saved = localStorage.getItem('delhi_travel_app_data');
-                if (saved) {
-                    appData = JSON.parse(saved);
-                }
-            } catch (e) {
-                console.warn('Storage error');
+        function toggleExpenseSelection(expId) {
+            const trip = state.trips.find(t => t.id === state.activeTripId);
+            if (!trip) return;
+
+            const target = trip.expenses.find(e => e.id === expId);
+            if (target) {
+                target.selected = !target.selected;
             }
+
+            saveState();
+            renderActiveTrip();
         }
 
-        function exportJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
-            const dlAnchor = document.createElement('a');
-            dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", "delhi_travel_plans_2026_2027.json");
-            document.body.appendChild(dlAnchor);
-            dlAnchor.click();
-            dlAnchor.remove();
+        function deleteExpense(expId) {
+            const trip = state.trips.find(t => t.id === state.activeTripId);
+            if (!trip) return;
+
+            trip.expenses = trip.expenses.filter(e => e.id !== expId);
+            saveState();
+            renderActiveTrip();
         }
 
-        function importJSON(event) {
+        // -------------------------------------------------------------
+        // JSON EXPORT & IMPORT
+        // -------------------------------------------------------------
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `Delhi_Travel_Planner_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            dlAnchorElem.click();
+        }
+
+        function triggerImport() {
+            document.getElementById('importFileInput').click();
+        }
+
+        function importData(event) {
             const fileReader = new FileReader();
             fileReader.onload = function(e) {
                 try {
-                    appData = JSON.parse(e.target.result);
-                    saveToLocalStorage();
-                    init();
-                    alert("Travel plans imported successfully!");
-                } catch (err) {
-                    alert("Invalid JSON file.");
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed.trips) {
+                        state.trips = parsed.trips;
+                        state.activeTripId = parsed.activeTripId || state.trips[0]?.id;
+                        saveState();
+                        renderAll();
+                        alert('Travel data imported successfully!');
+                    }
+                } catch(err) {
+                    alert('Invalid JSON File format.');
                 }
             };
-            if (event.target.files[0]) {
-                fileReader.readAsText(event.target.files[0]);
-            }
+            fileReader.readAsText(event.target.files[0]);
         }
-
-        window.onload = init;
     </script>
 </body>
 </html>
